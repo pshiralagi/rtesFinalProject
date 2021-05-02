@@ -364,8 +364,6 @@ int main(void)
        pthread_join(threads[i], NULL);
 
    printf("\nTEST COMPLETE\n");
-   printf("Thread 1, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet1.tv_sec, (wcet1.tv_nsec / NSEC_PER_MSEC), (wcet1.tv_nsec / NSEC_PER_MICROSEC), wcet1.tv_nsec);
-   printf("Thread 2, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet2.tv_sec, (wcet2.tv_nsec / NSEC_PER_MSEC), (wcet2.tv_nsec / NSEC_PER_MICROSEC), wcet2.tv_nsec);
    return 0;
 
 }
@@ -446,7 +444,7 @@ void *Sequencer(void *threadp)
             if((seqCnt % 20) == 0) sem_post(&semS1);
 
             // Service_2 = RT_MAX-2	@ 1 Hz
-            if((seqCnt % 50) == 0) sem_post(&semS2);
+            if((seqCnt % 10) == 0) sem_post(&semS2);
 
     #endif
 
@@ -639,6 +637,8 @@ void *Service_2(void *threadp)
         circ_detected = 0;
         char c = cvWaitKey(10);
         if( c == 'q' ) break;
+        printf("Thread 1, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet1.tv_sec, (wcet1.tv_nsec / NSEC_PER_MSEC), (wcet1.tv_nsec / NSEC_PER_MICROSEC), wcet1.tv_nsec);
+        printf("Thread 2, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet2.tv_sec, (wcet2.tv_nsec / NSEC_PER_MSEC), (wcet2.tv_nsec / NSEC_PER_MICROSEC), wcet2.tv_nsec);
     }
 
     pthread_exit((void *)0);

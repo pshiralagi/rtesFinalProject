@@ -26,7 +26,7 @@ const int PWM_pin = 17;
 
 void pwm_pulse(int frequency){
     int i=0;
-    if(frequency == 0){
+    if(frequency == OFF){
       gpioWrite(PWM_pin, PI_OFF);
     }else if(frequency == HIGH){
       while(i < 100){
@@ -34,7 +34,6 @@ void pwm_pulse(int frequency){
 	gpioDelay(HIGH);
 	gpioWrite(PWM_pin, PI_OFF);
 	gpioDelay(HIGH);
-	printf("%d\n", i);
 	i++;
       }
     }else{
@@ -44,7 +43,6 @@ void pwm_pulse(int frequency){
 	gpioDelay(frequency);
     }
     i = 0;
-    gpioWrite(PWM_pin, PI_OFF);
 }
 
 
@@ -52,8 +50,7 @@ int main(){
 	gpioCfgSetInternals(1<<10);
 	gpioInitialise();
 	gpioSetMode (PWM_pin, PI_OUTPUT);
-	pwm_pulse(MEDIUM);
-	pwm_pulse(HIGH);
+	pwm_pulse(LOW);
 	while (1)
 	{
 		ipc();
