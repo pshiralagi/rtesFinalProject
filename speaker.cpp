@@ -52,7 +52,8 @@ int main(){
 	gpioCfgSetInternals(1<<10);
 	gpioInitialise();
 	gpioSetMode (PWM_pin, PI_OUTPUT);
-	
+	pwm_pulse(MEDIUM);
+	pwm_pulse(HIGH);
 	while (1)
 	{
 		ipc();

@@ -599,6 +599,7 @@ void *Service_2(void *threadp)
         {
           Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
           int radius = cvRound(circles[i][2]);
+          printf("Radius -- - -- %d\n\r", radius);
           // circle center
           circle( mat_frame, center, 3, Scalar(0,255,0), -1, 8, 0 );
           // circle outline
