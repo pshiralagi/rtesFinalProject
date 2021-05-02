@@ -606,6 +606,9 @@ void *Service_2(void *threadp)
           {
               circ_detected = 1;
           }
+          cvRound(circles[i][0] = 0;
+          cvRound(circles[i][1] = 0;
+          cvRound(circles[i][2] = 0;
           
         }
 
