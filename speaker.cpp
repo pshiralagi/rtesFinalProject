@@ -10,7 +10,7 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 
-#define LOW 100000
+#define LOW 500000
 #define MEDIUM 250000
 #define HIGH 50000
 #define OFF 0

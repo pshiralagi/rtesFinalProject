@@ -443,7 +443,7 @@ void *Sequencer(void *threadp)
             // Servcie_1 = RT_MAX-1	@ 2.5 Hz
             if((seqCnt % 20) == 0) sem_post(&semS1);
 
-            // Service_2 = RT_MAX-2	@ 1 Hz
+            // Service_2 = RT_MAX-2	@ 5 Hz
             if((seqCnt % 10) == 0) sem_post(&semS2);
 
     #endif
@@ -591,13 +591,13 @@ void *Service_2(void *threadp)
 
         HoughCircles(gray, circles, CV_HOUGH_GRADIENT, 1, gray.rows/8, 100, 50, 0, 0);
 
-        printf("circles.size = %ld\n", circles.size());
+        // printf("circles.size = %ld\n", circles.size());
 
         for( size_t i = 0; i < circles.size(); i++ )
         {
           Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
           int radius = cvRound(circles[i][2]);
-          printf("Radius -- - -- %d\n\r", radius);
+        //   printf("Radius -- - -- %d\n\r", radius);
           // circle center
           circle( mat_frame, center, 3, Scalar(0,255,0), -1, 8, 0 );
           // circle outline
@@ -637,8 +637,8 @@ void *Service_2(void *threadp)
         circ_detected = 0;
         char c = cvWaitKey(10);
         if( c == 'q' ) break;
-        printf("Thread 1, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet1.tv_sec, (wcet1.tv_nsec / NSEC_PER_MSEC), (wcet1.tv_nsec / NSEC_PER_MICROSEC), wcet1.tv_nsec);
-        printf("Thread 2, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet2.tv_sec, (wcet2.tv_nsec / NSEC_PER_MSEC), (wcet2.tv_nsec / NSEC_PER_MICROSEC), wcet2.tv_nsec);
+        // printf("Thread 1, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet1.tv_sec, (wcet1.tv_nsec / NSEC_PER_MSEC), (wcet1.tv_nsec / NSEC_PER_MICROSEC), wcet1.tv_nsec);
+        // printf("Thread 2, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet2.tv_sec, (wcet2.tv_nsec / NSEC_PER_MSEC), (wcet2.tv_nsec / NSEC_PER_MICROSEC), wcet2.tv_nsec);
     }
 
     pthread_exit((void *)0);
