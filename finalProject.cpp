@@ -67,12 +67,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <iostream>
+#include <string.h>
 
 #include <pthread.h>
 #include <sched.h>
 #include <time.h>
 #include <semaphore.h>
 #include <pigpio.h>
+#include <fcntl.h>
 
 #include <syslog.h>
 #include <sys/time.h>
