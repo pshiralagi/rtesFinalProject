@@ -23,7 +23,7 @@ finalProject: finalProject.o
 	$(CC) $(LDFLAGS) $(CFLAGS) $(LIBS) -o $@ $@.o `pkg-config --libs opencv` $(CPPLIBS)
 
 speaker: speaker.o
-	$(CC) $(LDFLAGS) $(CFLAGS) -lpigpio -o $@ $@.o
+	$(CC) $(LDFLAGS) $(CFLAGS) -lrt -lpigpio -o $@ $@.o
 
 depend:
 
