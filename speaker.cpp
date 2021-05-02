@@ -49,6 +49,7 @@ void pwm_pulse(int frequency){
 
 
 int main(){
+	gpioCfgSetInternals(1<<10);
 	gpioInitialise();
 	gpioSetMode (PWM_pin, PI_OUTPUT);
 	
@@ -78,10 +79,9 @@ void ipc(void)
 		perror("close");
 	}
 	memcpy((void*)temperature_ptr,(void*)(&temp_ptr[0]),sizeof(data));
-	printf("Temperature is %d\n\r", temp_ptr->tmp);
 	pulse = temp_ptr->tmp;
 	munmap(temp_ptr,sizeof(data));
-	printf("Pulse -- %d", pulse);
+	printf("Pulse -- %d\n\r", pulse);
 	switch (pulse)
 	{
 	case 0:

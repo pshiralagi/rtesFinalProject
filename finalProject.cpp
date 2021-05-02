@@ -160,6 +160,7 @@ void ipc_init(void);
 void ipc_alarm(int tmp);
 
 void setup() {
+        gpioCfgSetInternals(1<<10);
         gpioInitialise();
         gpioSetMode(TRIG, PI_OUTPUT);
         gpioSetMode(ECHO, PI_INPUT);
@@ -425,7 +426,7 @@ void *Sequencer(void *threadp)
             if (ultra_return == 1)
             {
                 sem_wait(&semRT);
-                RT_ON == 1;
+                RT_ON = 1;
                 sem_post(&semRT);
                 sem_wait(&semSPKR);
                 SPKR_CODE = 1;
