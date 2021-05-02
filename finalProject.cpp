@@ -26,7 +26,7 @@
 //
 // Sequencer = RT_MAX	@ 50 Hz
 // Servcie_1 = RT_MAX-1	@ 3 Hz
-// Service_2 = RT_MAX-2	@ 1 Hz
+// Service_2 = RT_MAX-2	@ 2 Hz
 //
 // Here are a few hardware/platform configuration settings on your Jetson
 // that you should also check before running this code:
@@ -109,7 +109,7 @@ using namespace std;
 #define NUM_THREADS (2+1)
 
 #ifdef seqgen
-int freq = 33333333;
+int freq = 50000000;
 #endif
 
 #ifdef seqgen2
@@ -310,7 +310,7 @@ int main(void)
     // Create Service threads which will block awaiting release for:
     //
 
-    // Servcie_1 = RT_MAX-1	@ 3 Hz
+    // Servcie_1 = RT_MAX-1	@ 2.5 Hz
     //
     rt_param[1].sched_priority=rt_max_prio-1;
     pthread_attr_setschedparam(&rt_sched_attr[1], &rt_param[1]);
@@ -348,7 +348,7 @@ int main(void)
     printf("Start sequencer\n");
     threadParams[0].sequencePeriods=900;
 
-    // Sequencer = RT_MAX	@ 30 Hz
+    // Sequencer = RT_MAX	@ 50 Hz
     //
     rt_param[0].sched_priority=rt_max_prio;
     pthread_attr_setschedparam(&rt_sched_attr[0], &rt_param[0]);
@@ -441,11 +441,11 @@ void *Sequencer(void *threadp)
         
             // Release each service at a sub-rate of the generic sequencer rate
     #ifdef seqgen
-            // Servcie_1 = RT_MAX-1	@ 3 Hz
-            if((seqCnt % 10) == 0) sem_post(&semS1);
+            // Servcie_1 = RT_MAX-1	@ 2.5 Hz
+            if((seqCnt % 20) == 0) sem_post(&semS1);
 
             // Service_2 = RT_MAX-2	@ 1 Hz
-            if((seqCnt % 30) == 0) sem_post(&semS2);
+            if((seqCnt % 50) == 0) sem_post(&semS2);
 
     #endif
 
@@ -483,7 +483,7 @@ uint8_t ultrasoinc_init(void)
 {
     static int dist;
     dist = getCM();
-    if (dist < 200 && dist > 50)
+    if (dist < 150 && dist > 50)
     {
         return 1;
     }
@@ -602,7 +602,7 @@ void *Service_2(void *threadp)
           circle( mat_frame, center, 3, Scalar(0,255,0), -1, 8, 0 );
           // circle outline
           circle( mat_frame, center, radius, Scalar(0,0,255), 3, 8, 0 );
-          if (radius)
+          if ((radius < 130) && (radius > 60))
           {
               circ_detected = 1;
           }
