@@ -132,7 +132,8 @@ int abortTest=FALSE;
 int abortS1=FALSE, abortS2=FALSE;
 sem_t semS1, semS2, semRT, semSPKR;
 struct timeval start_time_val;
-uint8_t RT_ON, SPKR_CODE, frequency;
+uint8_t RT_ON, SPKR_CODE;
+uint32_t frequency;
 
 
 struct timespec start_time = {0, 0};
