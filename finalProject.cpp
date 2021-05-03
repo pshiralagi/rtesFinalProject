@@ -101,7 +101,7 @@ using namespace std;
 #define NSEC_PER_MICROSEC (1000)
 #define USEC_PER_MSEC (1000)
 #define NANOSEC_PER_SEC (1000000000)
-#define NUM_CPU_CORES (2)
+#define NUM_CPU_CORES (1)
 #define TRUE (1)
 #define FALSE (0)
 #define TRIG 18
