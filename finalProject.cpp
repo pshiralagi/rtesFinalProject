@@ -27,6 +27,7 @@
 // Sequencer = RT_MAX	@ 50 Hz
 // Servcie_1 = RT_MAX-1	@ 3 Hz
 // Service_2 = RT_MAX-2	@ 2 Hz
+// Speaker runs as a best effort service
 //
 // Here are a few hardware/platform configuration settings on your Jetson
 // that you should also check before running this code:
@@ -106,6 +107,13 @@ using namespace std;
 #define TRIG 18
 #define ECHO 22
 
+#define LOW 500000
+#define MEDIUM 250000
+#define HIGH 50000
+#define OFF 0
+#define PWM_pin 17
+
+
 #define NUM_THREADS (2+1)
 
 #ifdef seqgen
@@ -124,7 +132,7 @@ int abortTest=FALSE;
 int abortS1=FALSE, abortS2=FALSE;
 sem_t semS1, semS2, semRT, semSPKR;
 struct timeval start_time_val;
-uint8_t RT_ON, SPKR_CODE;
+uint8_t RT_ON, SPKR_CODE, frequency;
 
 
 struct timespec start_time = {0, 0};
@@ -159,12 +167,33 @@ void print_scheduler(void);
 void ipc_init(void);
 void ipc_alarm(int tmp);
 
+void pwm_pulse(void){
+    int i=0;
+    if(frequency == OFF){
+      gpioWrite(PWM_pin, PI_OFF);
+    }else if(frequency == HIGH){
+      while(i < 100){
+	gpioWrite(PWM_pin, PI_ON);
+	gpioDelay(HIGH);
+	gpioWrite(PWM_pin, PI_OFF);
+	gpioDelay(HIGH);
+	i++;
+      }
+    }else{
+	gpioWrite(PWM_pin, PI_ON);
+	gpioDelay(frequency);
+	gpioWrite(PWM_pin, PI_OFF);
+	gpioDelay(frequency);
+    }
+    i = 0;
+}
+
 void setup() {
         gpioCfgSetInternals(1<<10);
         gpioInitialise();
         gpioSetMode(TRIG, PI_OUTPUT);
         gpioSetMode(ECHO, PI_INPUT);
-
+        gpioSetMode (PWM_pin, PI_OUTPUT);
         //TRIG pin must start LOW
         gpioWrite(TRIG, PI_OFF);
         gpioDelay(30); // it is 30 microsecond should be 30 millisecond
@@ -429,6 +458,7 @@ void *Sequencer(void *threadp)
                 sem_wait(&semSPKR);
                 SPKR_CODE = 1;
                 ipc_alarm(SPKR_CODE);
+                frequency = LOW;
                 sem_post(&semSPKR);
 
             }
@@ -445,7 +475,10 @@ void *Sequencer(void *threadp)
 
             // Service_2 = RT_MAX-2	@ 5 Hz
             if((seqCnt % 10) == 0) sem_post(&semS2);
-
+            else
+            {
+                pwm_pulse();
+            }
     #endif
 
     #ifdef seqgen2
@@ -454,6 +487,10 @@ void *Sequencer(void *threadp)
 
             // Service_2 = RT_MAX-2	@ 10 Hz
             if ((seqCnt % 6) == 0) sem_post(&semS2);
+            else
+            {
+                pwm_pulse();
+            }
     #endif
 
     #ifdef seqgen100
@@ -462,6 +499,10 @@ void *Sequencer(void *threadp)
 
             // Service_2 = RT_MAX-2	@ 100 Hz
             if ((seqCnt % 30) == 0) sem_post(&semS2);
+            else
+            {
+                pwm_pulse();
+            }
 
     #endif
 
@@ -516,6 +557,7 @@ void *Service_1(void *threadp)
             sem_wait(&semSPKR);
             SPKR_CODE = 2;
             ipc_alarm(SPKR_CODE);
+            frequency = MEDIUM;
             sem_post(&semSPKR);
         }
         else if (dist <= 50)
@@ -526,6 +568,7 @@ void *Service_1(void *threadp)
             sem_wait(&semSPKR);
             SPKR_CODE = 3;
             ipc_alarm(SPKR_CODE);
+            frequency = HIGH;
             sem_post(&semSPKR);
         }
         
@@ -621,6 +664,7 @@ void *Service_2(void *threadp)
         {
             sem_wait(&semSPKR);
             SPKR_CODE = 0;
+            frequency = OFF;
             ipc_alarm(SPKR_CODE);
             sem_post(&semSPKR);
             sem_wait(&semRT);

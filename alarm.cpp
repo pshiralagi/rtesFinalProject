@@ -1,4 +1,7 @@
-#include <pigpio.h>
+/*
+//	@filename: alarm.cpp
+//	@description: This process receives alarm information from the finalProject.cpp file and prints relevant statements
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,10 +13,6 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 
-#define LOW 500000
-#define MEDIUM 250000
-#define HIGH 50000
-#define OFF 0
 
 void ipc();
 
@@ -22,35 +21,8 @@ typedef struct {
 	int tmp;
 } data;
 
-const int PWM_pin = 17;
-
-void pwm_pulse(int frequency){
-    int i=0;
-    if(frequency == OFF){
-      gpioWrite(PWM_pin, PI_OFF);
-    }else if(frequency == HIGH){
-      while(i < 100){
-	gpioWrite(PWM_pin, PI_ON);
-	gpioDelay(HIGH);
-	gpioWrite(PWM_pin, PI_OFF);
-	gpioDelay(HIGH);
-	i++;
-      }
-    }else{
-	gpioWrite(PWM_pin, PI_ON);
-	gpioDelay(frequency);
-	gpioWrite(PWM_pin, PI_OFF);
-	gpioDelay(frequency);
-    }
-    i = 0;
-}
-
 
 int main(){
-	gpioCfgSetInternals(1<<10);
-	gpioInitialise();
-	gpioSetMode (PWM_pin, PI_OUTPUT);
-	pwm_pulse(LOW);
 	while (1)
 	{
 		ipc();
@@ -79,20 +51,20 @@ void ipc(void)
 	memcpy((void*)temperature_ptr,(void*)(&temp_ptr[0]),sizeof(data));
 	pulse = temp_ptr->tmp;
 	munmap(temp_ptr,sizeof(data));
-	printf("Pulse -- %d\n\r", pulse);
+
 	switch (pulse)
 	{
 	case 0:
-		pwm_pulse(OFF);
+		printf("Situation Safe\n\r");
 		break;
 	case 1:
-		pwm_pulse(LOW);
+		printf("Initial detection of person at doorway, start real time processes\n\r");
 		break;
 	case 2:
-		pwm_pulse(MEDIUM);
+		printf("Person is within the camera viewing angle, should detect the circle any moment now!\n\r");
 		break;
 	case 3:
-		pwm_pulse(HIGH);
+		printf("Circle not detected!\n\r");
 		break;
 	default:
 		break;

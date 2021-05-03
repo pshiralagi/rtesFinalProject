@@ -8,22 +8,22 @@ LIBS= -lrt -lpthread -lpigpio
 CPPLIBS= -L/usr/lib -lopencv_core -lopencv_flann -lopencv_video
 
 HFILES= 
-CPPFILES= finalProject.cpp speaker.cpp
+CPPFILES= finalProject.cpp alarm.cpp
 
 SRCS= ${HFILES} ${CFILES}
 CPPOBJS= ${CPPFILES:.cpp=.o}
 
-all:	finalProject speaker
+all:	finalProject alarm
 
 clean:
 	-rm -f *.o *.d
-	-rm -f finalProject speaker
+	-rm -f finalProject alarm
 
 finalProject: finalProject.o
 	$(CC) $(LDFLAGS) $(CFLAGS) $(LIBS) -o $@ $@.o `pkg-config --libs opencv` $(CPPLIBS)
 
-speaker: speaker.o
-	$(CC) $(LDFLAGS) $(CFLAGS) -lrt -lpigpio -o $@ $@.o
+alarm: alarm.o
+	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $@.o -lrt
 
 depend:
 
