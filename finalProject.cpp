@@ -117,7 +117,7 @@ using namespace std;
 #define NUM_THREADS (2+1)
 
 #ifdef seqgen
-int freq = 50000000;
+int freq = 80000000;
 #endif
 
 #ifdef seqgen2
