@@ -455,14 +455,14 @@ void *Sequencer(void *threadp)
 
         if (RT_ON == 0)
         {
+            ultra_return = ultrasoinc_init();
+            pwm_pulse();
+            pwm_pulse();
             sem_wait(&semSPKR);
             SPKR_CODE = 0;
             ipc_alarm(SPKR_CODE);
             frequency = OFF;
             sem_post(&semSPKR);  
-            ultra_return = ultrasoinc_init();
-            pwm_pulse();
-            pwm_pulse();
             if (ultra_return == 1)
             {
                 sem_wait(&semRT);
