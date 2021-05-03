@@ -27,6 +27,7 @@ int main(){
 	{
 		ipc();
 	}
+	return 1;
 	 
 }
 

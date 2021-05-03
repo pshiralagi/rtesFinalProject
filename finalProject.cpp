@@ -179,6 +179,7 @@ void pwm_pulse(void){
 	gpioDelay(HIGH);
 	i++;
       }
+    frequency = OFF;
     }else{
 	gpioWrite(PWM_pin, PI_ON);
 	gpioDelay(frequency);
@@ -287,7 +288,7 @@ int main(void)
 
    setup();
    ipc_init();
-   ipc_alarm(OFF);
+   
 
 
     // initialize the sequencer semaphores
@@ -307,7 +308,7 @@ int main(void)
     rc=sched_setscheduler(getpid(), SCHED_FIFO, &main_param);
     if(rc < 0) perror("main_param");
     print_scheduler();
-
+    ipc_alarm(OFF);
 
     pthread_attr_getscope(&main_attr, &scope);
 
