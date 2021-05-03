@@ -475,10 +475,10 @@ void *Sequencer(void *threadp)
 
             // Service_2 = RT_MAX-2	@ 5 Hz
             if((seqCnt % 10) == 0) sem_post(&semS2);
-            else
-            {
-                pwm_pulse();
-            }
+            // else
+            // {
+            //     pwm_pulse();
+            // }
     #endif
 
     #ifdef seqgen2
