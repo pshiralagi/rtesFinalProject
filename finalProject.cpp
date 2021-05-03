@@ -101,7 +101,7 @@ using namespace std;
 #define NSEC_PER_MICROSEC (1000)
 #define USEC_PER_MSEC (1000)
 #define NANOSEC_PER_SEC (1000000000)
-#define NUM_CPU_CORES (1)
+#define NUM_CPU_CORES (2)
 #define TRUE (1)
 #define FALSE (0)
 #define TRIG 18
@@ -117,7 +117,7 @@ using namespace std;
 #define NUM_THREADS (2+1)
 
 #ifdef seqgen
-int freq = 80000000;
+int freq = 50000000;
 #endif
 
 #ifdef seqgen2
@@ -455,6 +455,7 @@ void *Sequencer(void *threadp)
         if (RT_ON == 0)
         {
             ultra_return = ultrasoinc_init();
+            pwm_pulse();
             if (ultra_return == 1)
             {
                 sem_wait(&semRT);
@@ -480,10 +481,10 @@ void *Sequencer(void *threadp)
 
             // Service_2 = RT_MAX-2	@ 5 Hz
             if((seqCnt % 10) == 0) sem_post(&semS2);
-            // else
-            // {
-            //     pwm_pulse();
-            // }
+            else
+            {
+                pwm_pulse();
+            }
     #endif
 
     #ifdef seqgen2
