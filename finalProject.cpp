@@ -559,6 +559,7 @@ void *Service_1(void *threadp)
 
         //get distance, if distance is less than some value, sound alarm and switch off RT for camera and ultra
         dist = getCM();
+        printf("Dist = %d", dist);
         if ((dist < 120) && (dist > 50))
         {
             sem_wait(&semSPKR);
