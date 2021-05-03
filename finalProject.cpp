@@ -117,7 +117,7 @@ using namespace std;
 #define NUM_THREADS (2+1)
 
 #ifdef seqgen
-int freq = 50000000;
+int freq = 20000000;
 #endif
 
 #ifdef seqgen2
@@ -478,11 +478,11 @@ void *Sequencer(void *threadp)
         
             // Release each service at a sub-rate of the generic sequencer rate
     #ifdef seqgen
-            // Servcie_1 = RT_MAX-1	@ 2.5 Hz
+            // Servcie_1 = RT_MAX-1	@ 2 Hz
             if((seqCnt % 10) == 0) sem_post(&semS1);
 
-            // Service_2 = RT_MAX-2	@ 5 Hz
-            if((seqCnt % 5) == 0) sem_post(&semS2);
+            // Service_2 = RT_MAX-2	@ 1 Hz
+            if((seqCnt % 20) == 0) sem_post(&semS2);
             else
             {
                 pwm_pulse();
