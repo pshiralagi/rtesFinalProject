@@ -171,9 +171,6 @@ void pwm_pulse(void){
     int i=0;
     if(frequency == OFF){
       gpioWrite(PWM_pin, PI_OFF);
-        sem_wait(&semRT);
-        RT_ON = 0;
-        sem_post(&semRT);
     }else if(frequency == HIGH){
       while(i < 100){
 	gpioWrite(PWM_pin, PI_ON);
@@ -483,10 +480,10 @@ void *Sequencer(void *threadp)
 
             // Service_2 = RT_MAX-2	@ 5 Hz
             if((seqCnt % 10) == 0) sem_post(&semS2);
-            else
-            {
-                pwm_pulse();
-            }
+            // else
+            // {
+            //     pwm_pulse();
+            // }
     #endif
 
     #ifdef seqgen2
@@ -570,7 +567,9 @@ void *Service_1(void *threadp)
         }
         else if (dist <= 50)
         {   
-
+            sem_wait(&semRT);
+            RT_ON = 0;
+            sem_post(&semRT);
             sem_wait(&semSPKR);
             SPKR_CODE = 3;
             ipc_alarm(SPKR_CODE);
