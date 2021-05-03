@@ -269,6 +269,8 @@ int main(void)
     pid_t mainpid;
     cpu_set_t allcpuset;
     RT_ON = 0;
+    frequency = OFF;
+    ipc_alarm(OFF);
     printf("Starting Sequencer Demo\n");
     gettimeofday(&start_time_val, (struct timezone *)0);
     gettimeofday(&current_time_val, (struct timezone *)0);
@@ -475,10 +477,10 @@ void *Sequencer(void *threadp)
 
             // Service_2 = RT_MAX-2	@ 5 Hz
             if((seqCnt % 10) == 0) sem_post(&semS2);
-            // else
-            // {
-            //     pwm_pulse();
-            // }
+            else
+            {
+                pwm_pulse();
+            }
     #endif
 
     #ifdef seqgen2

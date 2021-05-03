@@ -33,7 +33,7 @@ int main(){
 /*	Function to access shared memory	*/
 void ipc(void)
 {
-	static int pulse;
+	static int pulse = 0;
 	data temperature;
 	data *temperature_ptr = &temperature;
 	data *temp_ptr = NULL;
