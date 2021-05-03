@@ -560,15 +560,15 @@ void *Service_1(void *threadp)
         //get distance, if distance is less than some value, sound alarm and switch off RT for camera and ultra
         dist = getCM();
         syslog(LOG_CRIT, "Distance = %d", dist);
-        if ((dist < 120) && (dist > 50))
+        if ((dist < 120) && (dist > 70))
         {
             sem_wait(&semSPKR);
-            SPKR_CODE = 3;
+            SPKR_CODE = 2;
             ipc_alarm(SPKR_CODE);
-            frequency = HIGH;
+            frequency = MEDIUM;
             sem_post(&semSPKR);
         }
-        if (dist <= 50)
+        if (dist <= 70)
         { 
             sem_wait(&semSPKR);
             SPKR_CODE = 3;
