@@ -270,7 +270,7 @@ int main(void)
     cpu_set_t allcpuset;
     RT_ON = 0;
     frequency = OFF;
-    ipc_alarm(OFF);
+    
     printf("Starting Sequencer Demo\n");
     gettimeofday(&start_time_val, (struct timezone *)0);
     gettimeofday(&current_time_val, (struct timezone *)0);
@@ -287,6 +287,7 @@ int main(void)
 
    setup();
    ipc_init();
+   ipc_alarm(OFF);
 
 
     // initialize the sequencer semaphores
