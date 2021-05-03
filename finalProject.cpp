@@ -456,6 +456,7 @@ void *Sequencer(void *threadp)
         {
             ultra_return = ultrasoinc_init();
             pwm_pulse();
+            pwm_pulse();
             if (ultra_return == 1)
             {
                 sem_wait(&semRT);
@@ -477,10 +478,10 @@ void *Sequencer(void *threadp)
             // Release each service at a sub-rate of the generic sequencer rate
     #ifdef seqgen
             // Servcie_1 = RT_MAX-1	@ 2.5 Hz
-            if((seqCnt % 20) == 0) sem_post(&semS1);
+            if((seqCnt % 10) == 0) sem_post(&semS1);
 
             // Service_2 = RT_MAX-2	@ 5 Hz
-            if((seqCnt % 10) == 0) sem_post(&semS2);
+            if((seqCnt % 5) == 0) sem_post(&semS2);
             else
             {
                 pwm_pulse();
@@ -566,7 +567,7 @@ void *Service_1(void *threadp)
             frequency = MEDIUM;
             sem_post(&semSPKR);
         }
-        else if (dist <= 50)
+        if (dist <= 50)
         { 
             sem_wait(&semSPKR);
             SPKR_CODE = 3;
