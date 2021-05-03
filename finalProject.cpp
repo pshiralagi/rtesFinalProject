@@ -447,7 +447,7 @@ void *Sequencer(void *threadp)
 
         seqCnt++;
         gettimeofday(&current_time_val, (struct timezone *)0);
-        syslog(LOG_CRIT, "Sequencer cycle %llu @ sec=%d, msec=%d\n", seqCnt, (int)(current_time_val.tv_sec-start_time_val.tv_sec), (int)current_time_val.tv_usec/USEC_PER_MSEC);
+        //syslog(LOG_CRIT, "Sequencer cycle %llu @ sec=%d, msec=%d\n", seqCnt, (int)(current_time_val.tv_sec-start_time_val.tv_sec), (int)current_time_val.tv_usec/USEC_PER_MSEC);
 
 
         if(delay_cnt > 1) printf("Sequencer looping delay %d\n", delay_cnt);
@@ -559,13 +559,13 @@ void *Service_1(void *threadp)
 
         //get distance, if distance is less than some value, sound alarm and switch off RT for camera and ultra
         dist = getCM();
-        syslog(LOG_DEBUG, "Distance = %d", dist);
+        syslog(LOG_CRIT, "Distance = %d", dist);
         if ((dist < 120) && (dist > 50))
         {
             sem_wait(&semSPKR);
-            SPKR_CODE = 2;
+            SPKR_CODE = 3;
             ipc_alarm(SPKR_CODE);
-            frequency = MEDIUM;
+            frequency = HIGH;
             sem_post(&semSPKR);
         }
         if (dist <= 50)
