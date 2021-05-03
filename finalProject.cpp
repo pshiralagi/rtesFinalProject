@@ -557,7 +557,7 @@ void *Service_1(void *threadp)
 
         //get distance, if distance is less than some value, sound alarm and switch off RT for camera and ultra
         dist = getCM();
-        if ((dist < 100) && (dist > 50))
+        if ((dist < 120) && (dist > 50))
         {
             sem_wait(&semSPKR);
             SPKR_CODE = 2;
@@ -566,15 +566,15 @@ void *Service_1(void *threadp)
             sem_post(&semSPKR);
         }
         else if (dist <= 50)
-        {   
-            sem_wait(&semRT);
-            RT_ON = 0;
-            sem_post(&semRT);
+        { 
             sem_wait(&semSPKR);
             SPKR_CODE = 3;
             ipc_alarm(SPKR_CODE);
             frequency = HIGH;
-            sem_post(&semSPKR);
+            sem_post(&semSPKR);  
+            sem_wait(&semRT);
+            RT_ON = 0;
+            sem_post(&semRT);
         }
         
         clock_gettime(CLOCK_REALTIME, &end_time);

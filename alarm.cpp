@@ -65,7 +65,7 @@ void ipc(void)
 		printf("Person is within the camera viewing angle, should detect the circle any moment now!\n\r");
 		break;
 	case 3:
-		printf("Circle not detected!\n\r");
+		printf("Circle not detected! Code red!!\n\r");
 		break;
 	default:
 		break;
