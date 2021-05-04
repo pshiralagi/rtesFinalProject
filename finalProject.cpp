@@ -738,7 +738,6 @@ void *Service_2(void *threadp)
             wcet2 = temp;
         }
         circ_detected = 0;
-        circ_detected = 0;
         char c = cvWaitKey(10);
         if( c == 'q' ) break;
         // printf("Thread 1, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet1.tv_sec, (wcet1.tv_nsec / NSEC_PER_MSEC), (wcet1.tv_nsec / NSEC_PER_MICROSEC), wcet1.tv_nsec);
