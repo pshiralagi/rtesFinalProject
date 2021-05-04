@@ -117,7 +117,7 @@ using namespace std;
 #define NUM_THREADS (3+1)
 
 #ifdef seqgen
-int freq = 40000000;
+int freq = 20000000;
 #endif
 
 #ifdef seqgen2
@@ -469,10 +469,10 @@ void *Sequencer(void *threadp)
             // Release each service at a sub-rate of the generic sequencer rate
     #ifdef seqgen
             // Servcie_1 = RT_MAX-1	@ 2 Hz
-            if((seqCnt % 20) == 0) sem_post(&semS1);
+            if((seqCnt % 10) == 0) sem_post(&semS1);
 
             // Service_2 = RT_MAX-2	@ 1 Hz
-            if((seqCnt % 40) == 0) sem_post(&semS2);
+            if((seqCnt % 20) == 0) sem_post(&semS2);
             else
             {
                 sem_post(&semS3);
@@ -683,9 +683,9 @@ void *Service_2(void *threadp)
         circ_detected = 0;
         char c = cvWaitKey(10);
         if( c == 'q' ) break;
-        syslog(LOG_DEBUG, "Thread 1, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet1.tv_sec, (wcet1.tv_nsec / NSEC_PER_MSEC), (wcet1.tv_nsec / NSEC_PER_MICROSEC), wcet1.tv_nsec);
-        syslog(LOG_DEBUG, "Thread 2, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet2.tv_sec, (wcet2.tv_nsec / NSEC_PER_MSEC), (wcet2.tv_nsec / NSEC_PER_MICROSEC), wcet2.tv_nsec);
-        syslog(LOG_DEBUG, "Thread 3, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet3.tv_sec, (wcet3.tv_nsec / NSEC_PER_MSEC), (wcet3.tv_nsec / NSEC_PER_MICROSEC), wcet3.tv_nsec);
+        // syslog(LOG_DEBUG, "Thread 1, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet1.tv_sec, (wcet1.tv_nsec / NSEC_PER_MSEC), (wcet1.tv_nsec / NSEC_PER_MICROSEC), wcet1.tv_nsec);
+        // syslog(LOG_DEBUG, "Thread 2, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet2.tv_sec, (wcet2.tv_nsec / NSEC_PER_MSEC), (wcet2.tv_nsec / NSEC_PER_MICROSEC), wcet2.tv_nsec);
+        // syslog(LOG_DEBUG, "Thread 3, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet3.tv_sec, (wcet3.tv_nsec / NSEC_PER_MSEC), (wcet3.tv_nsec / NSEC_PER_MICROSEC), wcet3.tv_nsec);
     }
 
     pthread_exit((void *)0);
