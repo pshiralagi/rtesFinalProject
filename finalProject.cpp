@@ -166,64 +166,12 @@ void *Service_2(void *threadp);
 void *Service_3(void *threadp);
 double getTimeMsec(void);
 void print_scheduler(void);
+int delta_t(struct timespec *stop, struct timespec *start, struct timespec *delta_t);
 
 void ipc_init(void);
 void ipc_alarm(int tmp);
 
-void *Service_3(void *threadp){
-    struct timeval current_time_val;
-    double current_time;
-    int dist;
-    int i=0;
-    unsigned long long S1Cnt=0;
-    threadParams_t *threadParams = (threadParams_t *)threadp;
 
-    gettimeofday(&current_time_val, (struct timezone *)0);
-    syslog(LOG_CRIT, "Frame Sampler thread @ sec=%d, msec=%d\n", (int)(current_time_val.tv_sec-start_time_val.tv_sec), (int)current_time_val.tv_usec/USEC_PER_MSEC);
-    printf("Frame Sampler thread @ sec=%d, msec=%d\n", (int)(current_time_val.tv_sec-start_time_val.tv_sec), (int)current_time_val.tv_usec/USEC_PER_MSEC);
-
-    while(!abortS1)
-    {
-        sem_wait(&semS1);
-        clock_gettime(CLOCK_REALTIME, &start_time);
-        S3Cnt++;
-
-        gettimeofday(&current_time_val, (struct timezone *)0);
-        syslog(LOG_CRIT, "S3 Frame Sampler release %llu @ sec=%d, msec=%d\n", S3Cnt, (int)(current_time_val.tv_sec-start_time_val.tv_sec), (int)current_time_val.tv_usec/USEC_PER_MSEC);
-
-        if(frequency == OFF){
-        gpioWrite(PWM_pin, PI_OFF);
-        }else if(frequency == HIGH){
-        while(i < 100){
-        gpioWrite(PWM_pin, PI_ON);
-        gpioDelay(HIGH);
-        gpioWrite(PWM_pin, PI_OFF);
-        gpioDelay(HIGH);
-        i++;
-        }
-        frequency = OFF;
-
-        }else{
-        gpioWrite(PWM_pin, PI_ON);
-        gpioDelay(frequency);
-        gpioWrite(PWM_pin, PI_OFF);
-        gpioDelay(frequency);
-        }
-        i = 0;
-        
-        clock_gettime(CLOCK_REALTIME, &end_time);
-        delta_t(&end_time, &start_time, &time_diff);
-    
-        temp = time_diff;
-        delta_t(&temp, &wcet3, &time_diff);
-        
-        if((time_diff.tv_sec) >= 0)
-        {
-            wcet3 = temp;
-        }
-    }
-    pthread_exit((void *)0);
-}
 
 void setup() {
         gpioCfgSetInternals(1<<10);
@@ -567,7 +515,7 @@ void *Sequencer(void *threadp)
         }
     } while(!abortTest);
 
-    sem_post(&semS1); sem_post(&semS2);sem_post(&semS2)
+    sem_post(&semS1); sem_post(&semS2);sem_post(&semS2);
     abortS1=TRUE; abortS2=TRUE, abortS3=TRUE;
 
     pthread_exit((void *)0);
@@ -747,7 +695,60 @@ void *Service_2(void *threadp)
 
     pthread_exit((void *)0);
 }
+void *Service_3(void *threadp){
+    struct timeval current_time_val;
+    double current_time;
+    int dist;
+    int i=0;
+    unsigned long long S3Cnt=0;
+    threadParams_t *threadParams = (threadParams_t *)threadp;
 
+    gettimeofday(&current_time_val, (struct timezone *)0);
+    syslog(LOG_CRIT, "Frame Sampler thread @ sec=%d, msec=%d\n", (int)(current_time_val.tv_sec-start_time_val.tv_sec), (int)current_time_val.tv_usec/USEC_PER_MSEC);
+    printf("Frame Sampler thread @ sec=%d, msec=%d\n", (int)(current_time_val.tv_sec-start_time_val.tv_sec), (int)current_time_val.tv_usec/USEC_PER_MSEC);
+
+    while(!abortS1)
+    {
+        sem_wait(&semS1);
+        clock_gettime(CLOCK_REALTIME, &start_time);
+        S3Cnt++;
+
+        gettimeofday(&current_time_val, (struct timezone *)0);
+        syslog(LOG_CRIT, "S3 Frame Sampler release %llu @ sec=%d, msec=%d\n", S3Cnt, (int)(current_time_val.tv_sec-start_time_val.tv_sec), (int)current_time_val.tv_usec/USEC_PER_MSEC);
+
+        if(frequency == OFF){
+        gpioWrite(PWM_pin, PI_OFF);
+        }else if(frequency == HIGH){
+        while(i < 100){
+        gpioWrite(PWM_pin, PI_ON);
+        gpioDelay(HIGH);
+        gpioWrite(PWM_pin, PI_OFF);
+        gpioDelay(HIGH);
+        i++;
+        }
+        frequency = OFF;
+
+        }else{
+        gpioWrite(PWM_pin, PI_ON);
+        gpioDelay(frequency);
+        gpioWrite(PWM_pin, PI_OFF);
+        gpioDelay(frequency);
+        }
+        i = 0;
+        
+        clock_gettime(CLOCK_REALTIME, &end_time);
+        delta_t(&end_time, &start_time, &time_diff);
+    
+        temp = time_diff;
+        delta_t(&temp, &wcet3, &time_diff);
+        
+        if((time_diff.tv_sec) >= 0)
+        {
+            wcet3 = temp;
+        }
+    }
+    pthread_exit((void *)0);
+}
 
 double getTimeMsec(void)
 {
