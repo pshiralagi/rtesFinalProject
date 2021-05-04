@@ -448,11 +448,6 @@ void *Sequencer(void *threadp)
         {
             ultra_return = ultrasoinc_init();
             sem_post(&semS3);
-            sem_wait(&semSPKR);
-            SPKR_CODE = 0;
-            ipc_alarm(SPKR_CODE);
-            frequency = OFF;
-            sem_post(&semSPKR);  
             if (ultra_return == 1)
             {
                 sem_wait(&semRT);
@@ -726,7 +721,11 @@ void *Service_3(void *threadp){
         gpioDelay(HIGH);
         i++;
         }
+        sem_wait(&semSPKR);
+        SPKR_CODE = 0;
+        ipc_alarm(SPKR_CODE);
         frequency = OFF;
+        sem_post(&semSPKR);  
 
         }else{
         gpioWrite(PWM_pin, PI_ON);
