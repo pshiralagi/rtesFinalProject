@@ -447,7 +447,7 @@ void *Sequencer(void *threadp)
         if (RT_ON == 0)
         {
             ultra_return = ultrasoinc_init();
-            sem_post(&semS3);
+            //sem_post(&semS3);
             if (ultra_return == 1)
             {
                 sem_wait(&semRT);
@@ -521,7 +521,7 @@ uint8_t ultrasoinc_init(void)
 {
     static int dist;
     dist = getCM();
-    if (dist < 200 && dist > 50)
+    if (dist < 150 && dist > 50)
     {
         return 1;
     }
@@ -551,7 +551,7 @@ void *Service_1(void *threadp)
         //get distance, if distance is less than some value, sound alarm and switch off RT for camera and ultra
         dist = getCM();
         syslog(LOG_CRIT, "Distance = %d", dist);
-        if ((dist < 140) && (dist > 110))
+        if ((dist < 130) && (dist > 110))
         {
             sem_wait(&semSPKR);
             SPKR_CODE = 2;
