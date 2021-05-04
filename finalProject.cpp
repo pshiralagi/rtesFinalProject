@@ -114,7 +114,7 @@ using namespace std;
 #define PWM_pin 17
 
 
-#define NUM_THREADS (2+1)
+#define NUM_THREADS (3+1)
 
 #ifdef seqgen
 int freq = 40000000;
@@ -129,8 +129,8 @@ int freq = 33333333.33;
 #endif
 
 int abortTest=FALSE;
-int abortS1=FALSE, abortS2=FALSE;
-sem_t semS1, semS2, semRT, semSPKR;
+int abortS1=FALSE, abortS2=FALSE, abortS3=FALSE;
+sem_t semS1, semS2, semS3, semRT, semSPKR;
 struct timeval start_time_val;
 uint8_t RT_ON, SPKR_CODE;
 uint32_t frequency;
@@ -144,6 +144,7 @@ struct timespec temp = {0, 0};
 
 struct timespec wcet1 = {0, 0};
 struct timespec wcet2 = {0, 0};
+struct timespec wcet3 = {0, 0};
 
 
 typedef struct
@@ -162,33 +163,66 @@ void *Sequencer(void *threadp);
 uint8_t ultrasoinc_init(void);
 void *Service_1(void *threadp);
 void *Service_2(void *threadp);
+void *Service_3(void *threadp);
 double getTimeMsec(void);
 void print_scheduler(void);
 
 void ipc_init(void);
 void ipc_alarm(int tmp);
 
-void pwm_pulse(void){
+void *Service_3(void *threadp){
+    struct timeval current_time_val;
+    double current_time;
+    int dist;
     int i=0;
-    if(frequency == OFF){
-      gpioWrite(PWM_pin, PI_OFF);
-    }else if(frequency == HIGH){
-      while(i < 100){
-	gpioWrite(PWM_pin, PI_ON);
-	gpioDelay(HIGH);
-	gpioWrite(PWM_pin, PI_OFF);
-	gpioDelay(HIGH);
-	i++;
-      }
-    frequency = OFF;
+    unsigned long long S1Cnt=0;
+    threadParams_t *threadParams = (threadParams_t *)threadp;
 
-    }else{
-	gpioWrite(PWM_pin, PI_ON);
-	gpioDelay(frequency);
-	gpioWrite(PWM_pin, PI_OFF);
-	gpioDelay(frequency);
+    gettimeofday(&current_time_val, (struct timezone *)0);
+    syslog(LOG_CRIT, "Frame Sampler thread @ sec=%d, msec=%d\n", (int)(current_time_val.tv_sec-start_time_val.tv_sec), (int)current_time_val.tv_usec/USEC_PER_MSEC);
+    printf("Frame Sampler thread @ sec=%d, msec=%d\n", (int)(current_time_val.tv_sec-start_time_val.tv_sec), (int)current_time_val.tv_usec/USEC_PER_MSEC);
+
+    while(!abortS1)
+    {
+        sem_wait(&semS1);
+        clock_gettime(CLOCK_REALTIME, &start_time);
+        S3Cnt++;
+
+        gettimeofday(&current_time_val, (struct timezone *)0);
+        syslog(LOG_CRIT, "S3 Frame Sampler release %llu @ sec=%d, msec=%d\n", S3Cnt, (int)(current_time_val.tv_sec-start_time_val.tv_sec), (int)current_time_val.tv_usec/USEC_PER_MSEC);
+
+        if(frequency == OFF){
+        gpioWrite(PWM_pin, PI_OFF);
+        }else if(frequency == HIGH){
+        while(i < 100){
+        gpioWrite(PWM_pin, PI_ON);
+        gpioDelay(HIGH);
+        gpioWrite(PWM_pin, PI_OFF);
+        gpioDelay(HIGH);
+        i++;
+        }
+        frequency = OFF;
+
+        }else{
+        gpioWrite(PWM_pin, PI_ON);
+        gpioDelay(frequency);
+        gpioWrite(PWM_pin, PI_OFF);
+        gpioDelay(frequency);
+        }
+        i = 0;
+        
+        clock_gettime(CLOCK_REALTIME, &end_time);
+        delta_t(&end_time, &start_time, &time_diff);
+    
+        temp = time_diff;
+        delta_t(&temp, &wcet3, &time_diff);
+        
+        if((time_diff.tv_sec) >= 0)
+        {
+            wcet3 = temp;
+        }
     }
-    i = 0;
+    pthread_exit((void *)0);
 }
 
 void setup() {
@@ -297,6 +331,7 @@ int main(void)
     //
     if (sem_init (&semS1, 0, 0)) { printf ("Failed to initialize S1 semaphore\n"); exit (-1); }
     if (sem_init (&semS2, 0, 0)) { printf ("Failed to initialize S2 semaphore\n"); exit (-1); }
+    if (sem_init (&semS3, 0, 0)) { printf ("Failed to initialize S2 semaphore\n"); exit (-1); }
     if (sem_init (&semRT, 0, 1)) { printf ("Failed to initialize SRT semaphore\n"); exit (-1); }
     if (sem_init (&semSPKR, 0, 1)) { printf ("Failed to initialize SPKR semaphore\n"); exit (-1); }
 
@@ -371,6 +406,14 @@ int main(void)
         perror("pthread_create for service 2");
     else
         printf("pthread_create successful for service 2\n");
+
+    rt_param[3].sched_priority=rt_max_prio-3;
+    pthread_attr_setschedparam(&rt_sched_attr[3], &rt_param[3]);
+    rc=pthread_create(&threads[3], &rt_sched_attr[3], Service_3, (void *)&(threadParams[3]));
+    if(rc < 0)
+        perror("pthread_create for service 3");
+    else
+        printf("pthread_create successful for service 3\n");
 
     // Wait for service threads to initialize and await release by sequencer.
     //
@@ -456,8 +499,7 @@ void *Sequencer(void *threadp)
         if (RT_ON == 0)
         {
             ultra_return = ultrasoinc_init();
-            pwm_pulse();
-            pwm_pulse();
+            sem_post(&semS3);
             sem_wait(&semSPKR);
             SPKR_CODE = 0;
             ipc_alarm(SPKR_CODE);
@@ -490,7 +532,7 @@ void *Sequencer(void *threadp)
             if((seqCnt % 5) == 0) sem_post(&semS2);
             else
             {
-                pwm_pulse();
+                sem_post(&semS3);
             }
     #endif
 
@@ -502,7 +544,7 @@ void *Sequencer(void *threadp)
             if ((seqCnt % 6) == 0) sem_post(&semS2);
             else
             {
-                pwm_pulse();
+                sem_post(&semS3);
             }
     #endif
 
@@ -514,7 +556,7 @@ void *Sequencer(void *threadp)
             if ((seqCnt % 30) == 0) sem_post(&semS2);
             else
             {
-                pwm_pulse();
+                sem_post(&semS3);
             }
 
     #endif
@@ -525,8 +567,8 @@ void *Sequencer(void *threadp)
         }
     } while(!abortTest);
 
-    sem_post(&semS1); sem_post(&semS2);
-    abortS1=TRUE; abortS2=TRUE;
+    sem_post(&semS1); sem_post(&semS2);sem_post(&semS2)
+    abortS1=TRUE; abortS2=TRUE, abortS3=TRUE;
 
     pthread_exit((void *)0);
 }
@@ -561,7 +603,7 @@ void *Service_1(void *threadp)
         S1Cnt++;
 
         gettimeofday(&current_time_val, (struct timezone *)0);
-        syslog(LOG_CRIT, "Frame Sampler release %llu @ sec=%d, msec=%d\n", S1Cnt, (int)(current_time_val.tv_sec-start_time_val.tv_sec), (int)current_time_val.tv_usec/USEC_PER_MSEC);
+        syslog(LOG_CRIT, "S1 Frame Sampler release %llu @ sec=%d, msec=%d\n", S1Cnt, (int)(current_time_val.tv_sec-start_time_val.tv_sec), (int)current_time_val.tv_usec/USEC_PER_MSEC);
 
         //get distance, if distance is less than some value, sound alarm and switch off RT for camera and ultra
         dist = getCM();
@@ -632,7 +674,7 @@ void *Service_2(void *threadp)
         S2Cnt++;
 
         gettimeofday(&current_time_val, (struct timezone *)0);
-        syslog(LOG_CRIT, "Time-stamp with Image Analysis release %llu @ sec=%d, msec=%d\n", S2Cnt, (int)(current_time_val.tv_sec-start_time_val.tv_sec), (int)current_time_val.tv_usec/USEC_PER_MSEC);
+        syslog(LOG_CRIT, "S2 Time-stamp with Image Analysis release %llu @ sec=%d, msec=%d\n", S2Cnt, (int)(current_time_val.tv_sec-start_time_val.tv_sec), (int)current_time_val.tv_usec/USEC_PER_MSEC);
         
         //read from camera, compare circle diameter, if match, switch off RT and send safe to speaker. Else, repeat
         frame=cvQueryFrame(capture);
@@ -696,10 +738,12 @@ void *Service_2(void *threadp)
             wcet2 = temp;
         }
         circ_detected = 0;
+        circ_detected = 0;
         char c = cvWaitKey(10);
         if( c == 'q' ) break;
         // printf("Thread 1, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet1.tv_sec, (wcet1.tv_nsec / NSEC_PER_MSEC), (wcet1.tv_nsec / NSEC_PER_MICROSEC), wcet1.tv_nsec);
         // printf("Thread 2, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet2.tv_sec, (wcet2.tv_nsec / NSEC_PER_MSEC), (wcet2.tv_nsec / NSEC_PER_MICROSEC), wcet2.tv_nsec);
+        // printf("Thread 3, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet3.tv_sec, (wcet3.tv_nsec / NSEC_PER_MSEC), (wcet3.tv_nsec / NSEC_PER_MICROSEC), wcet3.tv_nsec);
     }
 
     pthread_exit((void *)0);
