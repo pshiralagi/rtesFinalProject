@@ -515,7 +515,7 @@ void *Sequencer(void *threadp)
         }
     } while(!abortTest);
 
-    sem_post(&semS1); sem_post(&semS2);sem_post(&semS2);
+    sem_post(&semS1); sem_post(&semS2);sem_post(&semS3);
     abortS1=TRUE; abortS2=TRUE, abortS3=TRUE;
 
     pthread_exit((void *)0);
