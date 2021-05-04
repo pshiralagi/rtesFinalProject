@@ -683,9 +683,9 @@ void *Service_2(void *threadp)
         circ_detected = 0;
         char c = cvWaitKey(10);
         if( c == 'q' ) break;
-        // printf("Thread 1, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet1.tv_sec, (wcet1.tv_nsec / NSEC_PER_MSEC), (wcet1.tv_nsec / NSEC_PER_MICROSEC), wcet1.tv_nsec);
-        // printf("Thread 2, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet2.tv_sec, (wcet2.tv_nsec / NSEC_PER_MSEC), (wcet2.tv_nsec / NSEC_PER_MICROSEC), wcet2.tv_nsec);
-        // printf("Thread 3, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet3.tv_sec, (wcet3.tv_nsec / NSEC_PER_MSEC), (wcet3.tv_nsec / NSEC_PER_MICROSEC), wcet3.tv_nsec);
+        syslog(LOG_DEBUG, "Thread 1, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet1.tv_sec, (wcet1.tv_nsec / NSEC_PER_MSEC), (wcet1.tv_nsec / NSEC_PER_MICROSEC), wcet1.tv_nsec);
+        syslog(LOG_DEBUG, "Thread 2, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet2.tv_sec, (wcet2.tv_nsec / NSEC_PER_MSEC), (wcet2.tv_nsec / NSEC_PER_MICROSEC), wcet2.tv_nsec);
+        syslog(LOG_DEBUG, "Thread 3, WCET : %ld sec, %ld msec, %ld microsec, %ld nanosec\n\n\r", wcet3.tv_sec, (wcet3.tv_nsec / NSEC_PER_MSEC), (wcet3.tv_nsec / NSEC_PER_MICROSEC), wcet3.tv_nsec);
     }
 
     pthread_exit((void *)0);
