@@ -521,7 +521,7 @@ uint8_t ultrasoinc_init(void)
 {
     static int dist;
     dist = getCM();
-    if (dist < 150 && dist > 100)
+    if (dist < 150 && dist > 70)
     {
         return 1;
     }
