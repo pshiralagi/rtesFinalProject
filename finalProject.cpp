@@ -12,48 +12,23 @@
 //  Sequencer runs ultrasonic function, contains inter-process communication and schedules the two services
 //              Service_1 for ultrasonic sensor reading
 //              Service_2 camera frame aquisition, circle detection
+//              Service_3 is the speaker
+//
+//  In addition, there is a separate process communicating with this one over IPC to raise alarms, please refer to alarm.cpp
 //
 //
 //
-// Sequencer - 30 Hz 
+// Sequencer - 20 Hz 
 //                   [gives semaphores to all other services]
-// Service_1 - 3 Hz  , every 10th Sequencer loop
-//                   [camera frame aquisition]
-// Service_2 - 1 Hz  , every 30th Sequencer loop 
-//                   [time-stamp middle sample image with cvPutText or header]
+// Service_1 - 2 Hz  , every 10th Sequencer loop
+// Service_2 - 1 Hz  , every 20th Sequencer loop 
 //
 // With the above, priorities by RM policy would be:
 //
 // Sequencer = RT_MAX	@ 50 Hz
-// Servcie_1 = RT_MAX-1	@ 3 Hz
-// Service_2 = RT_MAX-2	@ 2 Hz
+// Servcie_1 - Ultrasoinc = RT_MAX-1	@ 3 Hz
+// Service_2 - Camera = RT_MAX-2	@ 2 Hz
 // Speaker runs as a best effort service
-//
-// Here are a few hardware/platform configuration settings on your Jetson
-// that you should also check before running this code:
-//
-// 1) Check to ensure all your CPU cores on in an online state.
-//
-// 2) Check /sys/devices/system/cpu or do lscpu.
-//
-//    Tegra is normally configured to hot-plug CPU cores, so to make all
-//    available, as root do:
-//
-//    echo 0 > /sys/devices/system/cpu/cpuquiet/tegra_cpuquiet/enable
-//    echo 1 > /sys/devices/system/cpu/cpu1/online
-//    echo 1 > /sys/devices/system/cpu/cpu2/online
-//    echo 1 > /sys/devices/system/cpu/cpu3/online
-//
-// 3) Check for precision time resolution and support with cat /proc/timer_list
-//
-// 4) Ideally all printf calls should be eliminated as they can interfere with
-//    timing.  They should be replaced with an in-memory event logger or at
-//    least calls to syslog.
-//
-// 5) For simplicity, you can just allow Linux to dynamically load balance
-//    threads to CPU cores (not set affinity) and as long as you have more
-//    threads than you have cores, this is still an over-subscribed system
-//    where RM policy is required over the set of cores.
 
 // This is necessary for CPU affinity macros in Linux
 #define _GNU_SOURCE
