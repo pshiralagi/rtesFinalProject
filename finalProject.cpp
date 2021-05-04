@@ -551,7 +551,7 @@ void *Service_1(void *threadp)
         //get distance, if distance is less than some value, sound alarm and switch off RT for camera and ultra
         dist = getCM();
         syslog(LOG_CRIT, "Distance = %d", dist);
-        if ((dist < 130) && (dist > 110))
+        if ((dist < 100) && (dist > 70))
         {
             sem_wait(&semSPKR);
             SPKR_CODE = 2;
@@ -559,7 +559,7 @@ void *Service_1(void *threadp)
             frequency = MEDIUM;
             sem_post(&semSPKR);
         }
-        if (dist <= 110)
+        if (dist <= 70)
         { 
             sem_wait(&semSPKR);
             SPKR_CODE = 3;
@@ -714,7 +714,7 @@ void *Service_3(void *threadp){
         if(frequency == OFF){
         gpioWrite(PWM_pin, PI_OFF);
         }else if(frequency == HIGH){
-        while(i < 100){
+        while(i < 40){
         gpioWrite(PWM_pin, PI_ON);
         gpioDelay(HIGH);
         gpioWrite(PWM_pin, PI_OFF);
