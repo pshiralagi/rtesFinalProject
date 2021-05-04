@@ -709,7 +709,7 @@ void *Service_3(void *threadp){
 
     while(!abortS1)
     {
-        sem_wait(&semS1);
+        sem_wait(&semS3);
         clock_gettime(CLOCK_REALTIME, &start_time);
         S3Cnt++;
 
